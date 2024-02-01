@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
@@ -231,3 +232,35 @@ vendor/bin/codecept run functional,unit --coverage --coverage-html --coverage-xm
 ```
 
 You can see code coverage output under the `tests/_output` directory.
+=======
+# MotorY Task - Vehicles Website
+
+## Overview
+
+Welcome to MotorY Task, a robust web application meticulously crafted with PHP 8.2.4 and the Yii2 framework. It seamlessly integrates CRUD (Create, Read, Update, Delete) functionalities to facilitate the efficient management of vehicles, encompassing services and categories.
+
+## Getting Started
+
+### Prerequisites
+
+Ensure your system meets the following prerequisites:
+
+- PHP 8.2.4
+- Composer (for Yii2 dependencies)
+- Web server (e.g., Apache, Nginx)
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/Yousef-M-Jaradat/motory_task.git
+   
+   cd motory_task
+   
+   composer install
+
+   php yii migrate
+
+
+>>>>>>> 2172224512e8c5d16ae03f7b896dfbc37529c6de
