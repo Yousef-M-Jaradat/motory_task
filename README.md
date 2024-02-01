@@ -1,19 +1,32 @@
-MotorY Task - Vehicles Website
-Overview
-MotorY Task is a web application built with PHP 8.2.4 and Yii2 framework. It provides CRUD (Create, Read, Update, Delete) functionalities for managing vehicles, including services and categories.
+# MotorY Task - Vehicles Website
 
-Getting Started
-Prerequisites
-PHP 8.2.4
-Composer (for Yii2 dependencies)
+## Overview
 
+Welcome to MotorY Task, a robust web application meticulously crafted with PHP 8.2.4 and the Yii2 framework. It seamlessly integrates CRUD (Create, Read, Update, Delete) functionalities to facilitate the efficient management of vehicles, encompassing services and categories.
 
-Installation
-Clone the repository:
+## Getting Started
 
-bash
-Copy code
-git clone https://github.com/Yousef-M-Jaradat/motory_task.git
+### Prerequisites
+
+Ensure your system meets the following prerequisites:
+
+- PHP 8.2.4
+- Composer (for Yii2 dependencies)
+- Web server (e.g., Apache, Nginx)
+
+### Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/Yousef-M-Jaradat/motory_task.git
+   
+   ```bash
+   cd motory_task
+   
+    ```bash
+   composer install
+
 Install dependencies:
 
 bash
