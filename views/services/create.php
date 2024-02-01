@@ -11,7 +11,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <h1><?= Html::encode($this->title) ?></h1>
 
-<?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
+<?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data', 'fieldConfig' => [
+    'options' => ['class' => 'form-group error-message'], // Add a common class to all form fields
+    'errorOptions' => ['class' => 'help-block'],
+],]]); ?>
 
 <?= $form->field($service, 'name')->textInput(['maxlength' => true]) ?>
 <?= $form->field($service, 'description')->textarea(['rows' => 6]) ?>

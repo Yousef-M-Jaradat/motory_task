@@ -20,106 +20,159 @@ class ServicesController extends Controller
      */
     public function actionIndex()
     {
-        $services = Services::find()->all();
-        return $this->render('index', [
-            'services' => $services,
-        ]);
+        try {
+            $services = Services::find()->all();
+            return $this->render('index', [
+                'services' => $services,
+            ]);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     public function actionView($id)
     {
-        $service = $this->findModel($id);
-
-        return $this->render('view', [
-            'service' => $service,
-        ]);
+        try {
+            $service = $this->findModel($id);
+            return $this->render('view', [
+                'service' => $service,
+            ]);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'Service not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
 
     public function actionCreate()
     {
-        $model = new Services();
-        $categories = Categories::find()->all();
-        $enumValues = ['new', 'used', 'both'];
+        try {
+            $model = new Services();
+            $categories = Categories::find()->all();
+            $enumValues = ['new', 'used', 'both'];
 
+            if ($this->request->isPost) {
+                $model->load($this->request->post());
 
-        if ($this->request->isPost) {
-            $model->load($this->request->post());
+                $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+                if ($model->imageFile) {
+                    $model->upload();
+                }
 
-            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
-            if ($model->imageFile) {
-                $model->upload();  
+                if ($model->save()) {
+                    $creationTime = date('Y-m-d H:i:s');
+                    $details = $model->name . " created at " . $creationTime;
+                    $this->logHistory('create service', $details);
+
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
             }
 
-            if ($model->save()) {
-                $this->logHistory($model->id, 'create');
-
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+            return $this->render('create', [
+                'service' => $model,
+                'categories' => $categories,
+                'enumValues' => $enumValues,
+            ]);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
         }
-
-        return $this->render('create', [
-            'service' => $model,
-            'categories' => $categories,
-            'enumValues' => $enumValues,
-        ]);
     }
 
 
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
-        $categories = Categories::find()->all();
-        $enumValues = ['new', 'used', 'both'];
+        try {
+            $model = $this->findModel($id);
+            $categories = Categories::find()->all();
+            $enumValues = ['new', 'used', 'both'];
 
+            if ($this->request->isPost) {
+                $model->load($this->request->post());
 
-        if ($this->request->isPost) {
-            $model->load($this->request->post());
+                $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+                if ($model->imageFile) {
+                    $model->upload();
+                }
 
-            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
-            if ($model->imageFile) {
-                $model->upload(); 
+                if ($model->save()) {
+                    $creationTime = date('Y-m-d H:i:s');
+                    $details = $model->name . " updated at " . $creationTime;
+                    $this->logHistory('update service', $details);
+
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
             }
 
-            if ($model->save()) {
-                $this->logHistory($model->id, 'update');
-
-                return $this->redirect(['view', 'id' => $model->id]);
-            }
+            return $this->render('update', [
+                'service' => $model,
+                'categories' => $categories,
+                'enumValues' => $enumValues,
+            ]);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'Service not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
         }
-
-        return $this->render('update', [
-            'service' => $model,
-            'categories' => $categories,
-            'enumValues' => $enumValues,
-
-        ]);
     }
 
 
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        $this->logHistory($id, 'delete');
+        try {
+            $this->findModel($id)->delete();
+            $creationTime = date('Y-m-d H:i:s');
+            $details = "service with Id =" . $id . " deleted at " . $creationTime;
+            $this->logHistory('delete service', $details);
 
-        return $this->redirect(['index']);
+            return $this->redirect(['index']);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'Service not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     protected function findModel($id)
     {
-        if (($model = Services::findOne($id)) !== null) {
-            return $model;
-        }
+        try {
+            if (($model = Services::findOne($id)) !== null) {
+                return $model;
+            }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+            throw $e;
+        }
     }
 
-    protected function logHistory($serviceId, $action)
+    protected function logHistory($action, $details)
     {
-        $history = new History();
-        $history->service_id = $serviceId;
-        $history->action = $action;
-        $history->save();
+        try {
+            $history = new History();
+            $history->action = $action;
+            $history->details = $details;
+            $history->save();
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+        }
     }
 }

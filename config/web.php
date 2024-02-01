@@ -7,11 +7,25 @@ $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    // 'language' => 'ar-AR',
+    // 'sourceLanguage' => 'en-US',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'i18n' => [
+            'translations' => [
+                'app*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                    'sourceLanguage' => 'en-US', // Source language is English
+                    'fileMap' => [
+                        'app' => 'app.php',
+                    ],
+                ],
+            ],
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'lqLD6ViPGNlxxmpn-HcCALJPMl44O3AM',
@@ -41,6 +55,10 @@ $config = [
                 ],
             ],
         ],
+        'fixture' => [
+            'class' => 'yii\faker\FixtureController',
+            'namespace' => 'tests\fixtures',
+        ],
         'db' => $db,
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -67,8 +85,15 @@ $config = [
                 'history/delete/<id:\d+>' => 'history/delete',
 
                 // language
-                '<language:\w{2}>' => 'site/index',
-                '<language:\w{2}>/<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                // '<language:\w{2}>' => 'site/index',
+                // '<language:\w{2}>/<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                'site/language/<language:\w+>' => 'site/language',
+                // Main routes without language
+                'motory' => 'site/index',
+                '' => 'site/main', // Define your route here
+                'site/change-language' => 'site/change-language',
+
+
             ],
         ],
     ],

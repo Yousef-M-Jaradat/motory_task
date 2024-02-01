@@ -2,92 +2,145 @@
 
 namespace app\controllers;
 
-use Attribute;
 use Yii;
+use app\models\History;
 use app\models\Categories;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\web\UploadedFile;
-
 
 class CategoriesController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function actionIndex()
     {
-        $Categories = Categories::find()->all();
-        return $this->render('index', [
-            'Categories' => $Categories,
-        ]);
+        try {
+            $categories = Categories::find()->all();
+            return $this->render('index', [
+                'Categories' => $categories, // Fix the variable name to match the view
+            ]);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     public function actionView($id)
     {
-        $categories = $this->findModel($id);
-
-        return $this->render('view', [
-            'categories' => $categories,
-        ]);
+        try {
+            $category = $this->findModel($id); // Fix the variable name
+            return $this->render('view', [
+                'categories' => $category, // Pass the model to the view with the correct variable name
+            ]);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'Category not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
-
 
     public function actionCreate()
     {
-        $categories = new Categories();
+        try {
+            $category = new Categories(); // Fix the variable name
 
-        if ($this->request->isPost) {
-            $categories->load($this->request->post());
+            if ($this->request->isPost) {
+                $category->load($this->request->post());
 
-            if ($categories->save()) {
-                return $this->redirect(['view', 'id' => $categories->id]);
+                if ($category->save()) {
+                    $creationTime = date('Y-m-d H:i:s');
+                    $details = $category->name . " created at " . $creationTime;
+                    $this->logHistory('create category', $details);
+                    return $this->redirect(['view', 'id' => $category->id]);
+                }
             }
+
+            return $this->render('create', [
+                'categories' => $category, // Pass the model to the view with the correct variable name
+            ]);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
         }
-
-        return $this->render('create', [
-            'categories' => $categories,
-        ]);
     }
-
 
     public function actionUpdate($id)
     {
-        $categories = $this->findModel($id);
+        try {
+            $category = $this->findModel($id); // Fix the variable name
 
+            if ($this->request->isPost) {
+                $category->load($this->request->post());
 
-        if ($this->request->isPost) {
-            $categories->load($this->request->post());
-
-
-
-            // Save the categories
-            if ($categories->save()) {
-                return $this->redirect(['view', 'id' => $categories->id]);
+                if ($category->save()) {
+                    $creationTime = date('Y-m-d H:i:s');
+                    $details = $category->name . " updated at " . $creationTime;
+                    $this->logHistory('update category', $details);
+                    return $this->redirect(['view', 'id' => $category->id]);
+                }
             }
+
+            return $this->render('update', [
+                'categories' => $category, // Pass the model to the view with the correct variable name
+            ]);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'Category not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
         }
-
-        return $this->render('update', [
-            'categories' => $categories,
-        ]);
     }
-
-
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        try {
+            $this->findModel($id)->delete();
+            $creationTime = date('Y-m-d H:i:s');
+            $details = "category with Id =" . $id . " deleted at " . $creationTime;
+            $this->logHistory('delete category', $details);
+            return $this->redirect(['index']);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'Category not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     protected function findModel($id)
     {
-        if (($model = Categories::findOne($id)) !== null) {
-            return $model;
-        }
+        try {
+            $model = Categories::findOne($id);
+            if ($model !== null) {
+                return $model;
+            }
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\CategoriesController');
+            throw $e;
+        }
+    }
+
+    protected function logHistory($action, $details)
+    {
+        try {
+            $history = new History();
+            $history->action = $action;
+            $history->details = $details;
+            $history->save();
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\ServicesController');
+        }
     }
 }

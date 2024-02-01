@@ -11,6 +11,7 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\Services;
 
+
 class SiteController extends Controller
 {
     /**
@@ -136,8 +137,40 @@ class SiteController extends Controller
 
     public function actionLanguage($language)
     {
-        Yii::$app->language = $language;
-        $referrer = Yii::$app->request->referrer;
-        return $this->redirect($referrer ?: Yii::$app->homeUrl);
+        $validLanguages = ['en-EN', 'ar-AR'];
+
+        if (in_array($language, $validLanguages) && !Yii::$app->user->isGuest) {
+            Yii::$app->language = $language;
+            Yii::$app->user->identity->language = $language;
+            Yii::info("Language changed to: $language", 'app');
+        } else {
+            Yii::$app->language = 'en';
+        }
+
+        return $this->redirect(Yii::$app->request->referrer ?: Yii::$app->homeUrl);
+    }
+
+
+    public function actionMain()
+    {
+        return $this->render('motoryCopy');
+    }
+    public function actionChangeLanguage($lang)
+    {
+        Yii::$app->session->set('language', $lang);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return ['success' => true];
+    }
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
+            // Language detection and fallback
+            $lang = Yii::$app->request->get('lang') ?: Yii::$app->session->get('language', 'en');
+            Yii::$app->language = $lang;
+
+            return true;
+        } else {
+            return false;
+        }
     }
 }

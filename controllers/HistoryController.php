@@ -11,36 +11,60 @@ class HistoryController extends Controller
 {
     public function actionIndex()
     {
-        $history = History::find()->all();
-
-        return $this->render('index', [
-            'history' => $history,
-        ]);
+        try {
+            $history = History::find()->all();
+            return $this->render('index', [
+                'history' => $history,
+            ]);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\HistoryController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     public function actionDeleteAll()
     {
-        History::deleteAll();
-
-        Yii::$app->session->setFlash('success', 'All history records have been deleted.');
-        return $this->redirect(['index']);
+        try {
+            History::deleteAll();
+            Yii::$app->session->setFlash('success', 'All history records have been deleted.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\HistoryController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     public function actionDelete($id)
     {
-        $history = $this->findModel($id);
-        $history->delete();
-
-        Yii::$app->session->setFlash('success', 'History record has been deleted.');
-        return $this->redirect(['index']);
+        try {
+            $history = $this->findModel($id);
+            $history->delete();
+            Yii::$app->session->setFlash('success', 'History record has been deleted.');
+            return $this->redirect(['index']);
+        } catch (NotFoundHttpException $e) {
+            Yii::error($e->getMessage(), 'app\controllers\HistoryController');
+            Yii::$app->session->setFlash('error', 'History record not found.');
+            return $this->redirect(['index']);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\HistoryController');
+            Yii::$app->session->setFlash('error', 'An unexpected error occurred.');
+            return $this->redirect(['index']);
+        }
     }
 
     protected function findModel($id)
     {
-        if (($model = History::findOne($id)) !== null) {
-            return $model;
-        }
+        try {
+            if (($model = History::findOne($id)) !== null) {
+                return $model;
+            }
 
-        throw new NotFoundHttpException('The requested history record does not exist.');
+            throw new NotFoundHttpException('The requested history record does not exist.');
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'app\controllers\HistoryController');
+            throw $e;
+        }
     }
 }

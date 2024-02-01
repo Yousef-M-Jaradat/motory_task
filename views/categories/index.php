@@ -6,13 +6,15 @@ use yii\grid\GridView;
 $this->title = 'Categories';
 $this->params['breadcrumbs'][] = $this->title;
 
-
+$deleteConfirmation = 'Are you sure you want to delete this category?';
+$counter = 1;
 $js = <<<JS
+    // JavaScript code to handle confirmation for individual Delete buttons
     $('.delete-btn').on('click', function(e) {
         e.preventDefault();
         var deleteUrl = $(this).attr('href');
         Swal.fire({
-            title: 'Are you sure?',
+            title: '$deleteConfirmation',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -47,25 +49,26 @@ $this->registerJs($js);
         'name',
         'description',
         [
+
             'class' => 'yii\grid\ActionColumn',
             'header' => 'Actions',
             'template' => '{view} {update} {delete}',
             'buttons' => [
+
                 'view' => function ($url, $model) {
                     return Html::a('<span class="btn btn-info">view</span>', ['view', 'id' => $model->id]);
                 },
                 'update' => function ($url, $model) {
+
                     return Html::a('<span class="btn btn-secondary">update</span>', ['update', 'id' => $model->id]);
                 },
                 'delete' => function ($url, $model) {
                     return Html::a('<span class="btn btn-danger delete-btn">delete</span>', ['delete', 'id' => $model->id], [
-                        'data' => [
-                            'confirm' => 'Are you sure you want to delete this item?',
-                            'method' => 'post',
-                        ],
+                        'class' => 'delete-btn',
                     ]);
                 },
             ],
         ],
     ],
-]); ?>
+]);
+?>

@@ -8,9 +8,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $deleteAllConfirmation = 'Are you sure you want to delete all history records?';
 $deleteConfirmation = 'Are you sure you want to delete this history record?';
-
+$counter = 1;
 $js = <<<JS
-    // JavaScript code to handle confirmation for Delete All button
     $('#delete-all-btn').on('click', function(e) {
         e.preventDefault();
         Swal.fire({
@@ -27,7 +26,6 @@ $js = <<<JS
         });
     });
 
-    // JavaScript code to handle confirmation for individual Delete buttons
     $('.delete-btn').on('click', function(e) {
         e.preventDefault();
         var deleteUrl = $(this).attr('href');
@@ -59,8 +57,14 @@ $this->registerJs($js);
 <?= GridView::widget([
     'dataProvider' => new \yii\data\ArrayDataProvider(['allModels' => $history]),
     'columns' => [
-        'id',
-        'service_id',
+        [
+            'attribute' => 'recordNumber',
+            'label' => 'No.',
+            'value' => function () use (&$counter) {
+                return $counter++;
+            },
+            'headerOptions' => ['style' => 'width:80px;'],
+        ],
         'action',
         'details',
         'created_at:datetime',
